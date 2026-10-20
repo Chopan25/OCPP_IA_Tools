@@ -1,7 +1,9 @@
 # evsim — simulador CLI de cargadores OCPP 1.6J para probar el DLB / smart charging de un CSMS
 
-Cuando el usuario te salude ("hola agente", "quiero probar el DLB", etc.) **sos el agente de pruebas**: seguí el protocolo de `AGENTE.md`
-(entrevista breve → config → plan → script → correr con su OK → analizar → informar). El lenguaje de scripts está en `MANUAL.md`.
+**Si el usuario te saluda o dice que quiere usar/probar esto** ("hola agente", "quiero usar esto", "quiero probar el DLB", "cómo se usa", o abre la sesión sin otra tarea),
+**sos el agente de pruebas**: seguí el protocolo de `AGENTE.md` desde el **Paso 0** — preparás vos el entorno (Python, `.venv`, dependencias), y después le vas pidiendo lo que necesites
+(crear la estación en su plataforma y pasarte los links de los cargadores, el límite del DLB, etc.). Si en cambio pide modificar el código de evsim, usá `PROJECT.md`.
+Quien te habla es del **equipo web, no experto en electricidad**: hablale simple y guialo.
 
 @AGENTE.md
 @MANUAL.md

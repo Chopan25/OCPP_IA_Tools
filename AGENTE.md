@@ -31,7 +31,7 @@ Ejecuta un **script** (`.evs`) que enchufa autos, arranca cargas y cambia cuánt
 (balanceo dinámico de carga) de la plataforma reparta bien la corriente disponible. Genera un reporte (`report.html`, `report.json`, `messages.log`,
 `samples.csv`) y `evsim summary` lo resume en texto.
 
-Comandos (desde `evsim_project/`, Windows; **usá el python del venv**):
+Comandos (desde la carpeta raíz del proyecto, la que se clonó; en Windows; **usá el python del venv**. En macOS/Linux reemplazá `.venv\Scripts\python.exe` por `.venv/bin/python`):
 
 ```
 .venv\Scripts\python.exe -m evsim init <link1> <link2> ... [--limit 40]     # crea sitio_real.json desde los links de los cargadores
@@ -42,7 +42,7 @@ Comandos (desde `evsim_project/`, Windows; **usá el python del venv**):
 .venv\Scripts\python.exe -m evsim mock-csms --limit 40                      # plataforma de juguete local (ensayos sin tocar la real)
 ```
 
-- **Sin `-c`, evsim usa `sitio.json`, que apunta al mock local.** Para la plataforma real usá **siempre `-c sitio_real.json`**.
+- **Para la plataforma real usá SIEMPRE `-c sitio_real.json`.** Sin `-c`, evsim busca `sitio.json` y, si no existe (clon nuevo), usa `sitio.example.json`, que apunta al **mock local** (`ws://127.0.0.1:9000`): sirve solo para ensayos.
 - Códigos de salida de `run`: 0 pasó · 1 falló/cortada · 2 error de config/script · 3 error de ejecución.
 
 ## 3. Lo que ya sabés (no lo vuelvas a preguntar)
@@ -68,10 +68,20 @@ en vivo; A y B), **`dlb_exploratorio`** (solo observa qué hace el DLB, sin afir
 
 ## 4. Protocolo de la sesión
 
-### Paso 0 — Arranque (hacelo vos, sin preguntar)
-1. Mirá si existe `sitio_real.json` (si ya existe, `evsim list -c sitio_real.json` te muestra los cargadores con la clave oculta).
-2. Saludá corto y explicá el plan en 3 líneas, en criollo: *"Vamos a conectar cargadores simulados a tu plataforma, hacer que 'carguen' autos y mirar cómo el DLB reparte la
-   corriente entre ellos. Primero armamos la estación, después probamos la conexión y después el reparto."* Si el usuario no sabe qué es el DLB, explicalo (§7).
+### Paso 0 — Preparar el entorno y arrancar (hacelo vos, sin preguntar; solo avisá lo que hacés)
+Este proyecto se usa recién clonado, así que **el entorno puede no existir todavía**:
+1. **Python:** verificá `python --version` (en Windows probá también `py -3`). Hace falta 3.10 o más nuevo (probado con 3.12). Si no hay Python, explicale al usuario cómo instalarlo
+   (python.org, o `winget install Python.Python.3.12` en Windows) y **esperá a que lo instale**; no instales software sin avisar.
+2. **Entorno virtual:** si no existe la carpeta `.venv`, crealo e instalá la única dependencia:
+   - Windows: `python -m venv .venv` y `.venv\Scripts\python.exe -m pip install -r requirements.txt`
+   - macOS/Linux: `python3 -m venv .venv` y `.venv/bin/python -m pip install -r requirements.txt`
+3. **Verificá que anda:** `.venv\Scripts\python.exe -m evsim list` debe listar los scripts. Si falla algo, leé el error, corregilo y, si hace falta, corré los tests
+   (`-m unittest discover -s tests -t .`, ~1 min).
+4. Mirá si existe `sitio_real.json` (si existe, `evsim list -c sitio_real.json` muestra los cargadores con la clave oculta; preguntale si los reutiliza o crea nuevos).
+5. **Saludá** (en criollo, corto) y explicá el plan en 3 líneas, por ejemplo: *"Vamos a conectar cargadores simulados a tu plataforma, hacer que 'carguen' autos y mirar cómo el DLB
+   reparte la corriente entre ellos. Primero armamos la estación, después probamos la conexión y después el reparto."* Si el usuario no sabe qué es el DLB, explicalo (§7).
+
+Después seguí con el Paso 1. (Si ya hay entorno y `sitio_real.json`, saltá al Paso 2 o 3 según lo que el usuario quiera.)
 
 ### Paso 1 — Preparar la estación en la plataforma (si no hay `sitio_real.json`, o quiere cargadores nuevos)
 Pedile que, **en su cuenta de la plataforma**, cree:
@@ -117,7 +127,7 @@ Proponé un plan corto (el usuario aprueba). Orden recomendado, de menor a mayor
 
 Armá el script partiendo de `dlb_parametrizado.evs` o `dlb_exploratorio.evs`: editá el bloque de variables (`limite`, `tope`, `baja`). Guardalo en `scripts/` (snake_case), `MARK` en cada fase.
 **Siempre `evsim check`** antes de correr. Si es un script **nuevo** (no los incluidos), **ensayalo primero contra el mock** con el mismo límite
-(`mock-csms --limit N` + `run <script>` sin `-c`) para detectar errores *del script* sin tocar la plataforma real. Para crear archivos usá la herramienta de escritura (no heredocs de shell).
+(`mock-csms --limit N` + `run <script> -c sitio.example.json`) para detectar errores *del script* sin tocar la plataforma real. Para crear archivos usá la herramienta de escritura (no heredocs de shell).
 Reglas de oro y errores típicos: `MANUAL.md` §0 y §7.
 
 ### Paso 5 — Correr contra la plataforma real
@@ -215,8 +225,7 @@ Ofrecé la siguiente prueba del plan o ajustá el script si el resultado mostró
 
 ## 8. Notas operativas (Windows)
 
-- Shell principal PowerShell; también hay Bash. Rutas con espacios entre comillas. El venv está en `evsim_project\.venv` (si faltara: `python -m venv .venv` y
-  `.venv\Scripts\python.exe -m pip install -r requirements.txt`).
+- Shell principal PowerShell en Windows (también puede haber Bash). Rutas con espacios entre comillas. El venv está en `.venv` dentro de la carpeta del proyecto (el Paso 0 lo crea si falta).
 - **Crear/editar archivos con la herramienta de escritura/edición** (los heredocs con comillas fallaron en este entorno).
 - Mock local para ensayos: `Start-Process` oculto, salida a `out\mock.log`; para cerrarlo, filtrá procesos `python` cuyo `CommandLine` contenga `mock-csms`
   (**no pongas ese texto literal en el mismo comando que lo mata**: armá el patrón concatenando). Reiniciá el mock si cambió su código.

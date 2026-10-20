@@ -14,7 +14,7 @@ from .script import ScriptError, parse_file, walk
 from .util import bold, dim, green, red, yellow
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-DEFAULT_CONFIG_NAMES = ("sitio.json", "site.json", "config.json")
+DEFAULT_CONFIG_NAMES = ("sitio.json", "site.json", "config.json", "sitio.example.json")   # el ultimo es el mock local
 
 
 def find_config(path):

@@ -9,7 +9,7 @@ script tipo gcode y genera un reporte con gráficos y verificaciones.
 ```
 python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
-copy sitio.example.json sitio.json      # y editarlo: URL del CSMS, límite del sitio, cargadores
+# la config se genera con los links de tus cargadores (ver GUIA.md): evsim init "<link1>" "<link2>"
 ```
 
 ## Uso
@@ -21,7 +21,7 @@ copy sitio.example.json sitio.json      # y editarlo: URL del CSMS, límite del 
 ```
 
 Para probar el simulador sin tu CSMS, en otra terminal: `.venv\Scripts\python.exe -m evsim mock-csms --limit 40`
-(con `sitio.json`, que apunta a `ws://127.0.0.1:9000/ocpp`).
+(sin `-c`, usa `sitio.example.json`, que apunta a `ws://127.0.0.1:9000/ocpp`).
 
 Para tu plataforma real: `.venv\Scripts\python.exe -m evsim init "<link cargador 1>" "<link cargador 2>"` crea `sitio_real.json`, y se corre con `-c sitio_real.json` (ver `GUIA.md`).
 

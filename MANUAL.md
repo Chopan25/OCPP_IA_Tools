@@ -9,7 +9,7 @@
 ## 0. Protocolo para la IA (leer primero)
 
 1. **Pedí o deducí** estos datos antes de escribir el script:
-   - ¿Cuántos cargadores y cuáles ids hay en `sitio.json`? (`python -m evsim list`). **Solo podés usar ids que existan.**
+   - ¿Cuántos cargadores y cuáles ids hay en la config (`sitio_real.json`)? (`python -m evsim list -c sitio_real.json`). **Solo podés usar ids que existan.**
    - ¿Cuál es el límite del sitio en A y el tope físico de cada cargador (`max_a`)?
    - ¿Qué comportamiento esperado tiene el CSMS (reparto parejo, prioridades, mínimo de 6 A, etc.)?
 2. **Escribí el script** siguiendo los patrones de la sección 6.

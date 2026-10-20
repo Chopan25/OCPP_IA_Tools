@@ -3,7 +3,8 @@
 evsim simula **cargadores de autos eléctricos virtuales** y los conecta a nuestra plataforma, para comprobar que el **balanceo dinámico de carga (DLB)**
 reparte bien la corriente. No hace falta saber de electricidad: esta guía explica lo necesario, y hay un agente de IA que te lleva de la mano.
 
-> **Camino rápido:** abrí Claude Code en la carpeta `evsim_project` y escribí **"hola agente, quiero probar el DLB"**. El agente te va a pedir que crees la estación
+> **Camino rápido:** cloná el repositorio, abrí Claude Code **dentro de esa carpeta** y escribí **"hola agente, quiero probar el DLB"** (o simplemente "quiero usar esto"). El agente prepara el
+> entorno solo (Python y dependencias), te va a pedir que crees la estación
 > en la plataforma y le pases los links de los cargadores; el resto lo hace él (configura, corre las pruebas, analiza y te cuenta cómo salió). Las secciones 3 a 6
 > explican lo mismo por si querés hacerlo a mano.
 
@@ -29,11 +30,11 @@ evsim hace de cargadores y de autos, y **mide qué le ordena la plataforma a cad
 ## 2. Qué necesitás
 
 - Una PC con Windows y **Python 3.12** instalado.
-- Esta carpeta (`evsim_project`).
+- Este repositorio clonado en tu PC.
 - Tu **cuenta de la plataforma de pruebas**, para crear una estación con cargadores.
 
 ### Instalación (una sola vez)
-En una terminal, dentro de `evsim_project`:
+En una terminal, dentro de la carpeta del repositorio:
 ```
 python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
