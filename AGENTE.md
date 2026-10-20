@@ -70,9 +70,12 @@ en vivo; A y B), **`dlb_exploratorio`** (solo observa qué hace el DLB, sin afir
 
 ### Paso 0 — Preparar el entorno y arrancar (hacelo vos, sin preguntar; solo avisá lo que hacés)
 Este proyecto se usa recién clonado, así que **el entorno puede no existir todavía**:
-1. **Python:** verificá `python --version` (en Windows probá también `py -3`). Hace falta 3.10 o más nuevo (probado con 3.12). Si no hay Python, explicale al usuario cómo instalarlo
-   (python.org, o `winget install Python.Python.3.12` en Windows) y **esperá a que lo instale**; no instales software sin avisar.
-2. **Entorno virtual:** si no existe la carpeta `.venv`, crealo e instalá la única dependencia:
+1. **Python:** verificá `python --version` (en Windows probá también `py -3`). Hace falta 3.10 o más nuevo (probado con 3.12). **Si no hay Python: no expliques cómo instalarlo.**
+   Informá en una línea qué falta y **preguntá si te da permiso para instalarlo** (ej. *"No encuentro Python en esta PC. ¿Me das permiso para instalarlo?"*). Solo con su OK instalalo
+   (Windows: `winget install Python.Python.3.12`; macOS: `brew install python`; Linux: el gestor de paquetes de la distro). Si te dice que no, pará y esperá. Después de instalar, volvé a verificar
+   (en una instalación recién hecha puede hacer falta usar `py -3` o la ruta completa porque la terminal no ve todavía el PATH nuevo).
+   Lo mismo vale para cualquier otro programa que falte: informá qué es y pedí permiso antes de instalarlo.
+2. **Entorno virtual:** si no existe la carpeta `.venv`, crealo e instalá la única dependencia del proyecto (queda dentro de la carpeta del proyecto; hacelo directo, con una línea de aviso):
    - Windows: `python -m venv .venv` y `.venv\Scripts\python.exe -m pip install -r requirements.txt`
    - macOS/Linux: `python3 -m venv .venv` y `.venv/bin/python -m pip install -r requirements.txt`
 3. **Verificá que anda:** `.venv\Scripts\python.exe -m evsim list` debe listar los scripts. Si falla algo, leé el error, corregilo y, si hace falta, corré los tests
