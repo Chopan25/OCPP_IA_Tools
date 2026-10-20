@@ -1,0 +1,45 @@
+; smoke_estados.evs - prueba de humo: conectar, pasar por los estados y generar una carga
+;
+; No asume nada del DLB: solo verifica que el cargador conecte, cambie de estado y cargue.
+; Tras cada paso hay que mirar en el CSMS que llegaron los StatusNotification y MeterValues.
+SCENARIO "Humo: conectar, estados y carga"
+MODE soft
+DEFAULT_WITHIN 20s
+
+CONNECT A B timeout=20s
+EXPECT_CONNECTED A
+EXPECT_CONNECTED B
+EXPECT_STATE A Available
+EXPECT_STATE B Available
+
+MARK "A: enchufa"
+PLUG A
+EXPECT_STATE A Preparing within=5s
+
+MARK "A: arranca transaccion"
+DEMAND A 16
+START A
+EXPECT_TX A active within=10s
+EXPECT_STATE A Charging within=10s
+WAIT 25s
+PRINT "A cargando; limite aplicado y corriente:"
+EXPECT_ACTUAL A >= 1 tol=0 within=15s
+
+MARK "B: se suma"
+PLUG B
+DEMAND B 16
+START B
+EXPECT_STATE B Charging within=10s
+WAIT 25s
+
+MARK "A termina"
+STOP A
+EXPECT_STATE A Finishing within=5s
+UNPLUG A
+EXPECT_STATE A Available within=5s
+
+MARK "B termina"
+STOP B
+UNPLUG B
+EXPECT_STATE B Available within=5s
+DISCONNECT ALL

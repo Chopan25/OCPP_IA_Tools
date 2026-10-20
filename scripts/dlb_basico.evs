@@ -1,0 +1,50 @@
+; dlb_basico.evs - reparto de 40 A entre dos cargadores de 32 A
+;
+; A conecta y toma 32 A. Entra B: se reparten 20/20. El auto de A baja su demanda a 10 A:
+; el sobrante pasa a B (10/30). Cuando A termina, B queda con su tope fisico (32 A).
+SCENARIO "Reparto basico 40A"
+DESCRIPTION "A solo -> A+B parejo -> A baja a 10A -> A termina"
+MODE strict
+TOLERANCE 1
+DEFAULT_WITHIN 20s
+
+; el sitio nunca debe pasar de 40 A (con 1 A de tolerancia y 5 s de gracia al cambiar)
+ASSERT_ALWAYS SUM_MEASURED <= 40 id=sitio tol=1 grace=5s
+
+CONNECT A B
+
+MARK "A solo"
+PLUG A
+DEMAND A 32
+START A idtag=TAG-A
+EXPECT_LIMIT A == 32
+WAIT_UNTIL_STABLE A for=4s
+EXPECT_ACTUAL A == 32 within=15s
+
+MARK "Entra B"
+PLUG B
+DEMAND B 32
+START B idtag=TAG-B
+EXPECT_LIMIT A == 20
+EXPECT_LIMIT B == 20
+WAIT_UNTIL_STABLE A B for=4s
+EXPECT_SUM_LE 40
+
+MARK "El auto de A baja a 10 A"
+DEMAND A 10
+EXPECT_LIMIT A == 10
+EXPECT_LIMIT B == 30
+WAIT_UNTIL_STABLE A B for=4s
+EXPECT_ACTUAL A == 10
+EXPECT_ACTUAL B == 30
+EXPECT_SUM_LE 40
+
+MARK "A termina"
+STOP A
+UNPLUG A
+EXPECT_LIMIT B == 32
+EXPECT_STATE A Available
+
+STOP B
+UNPLUG B
+DISCONNECT ALL

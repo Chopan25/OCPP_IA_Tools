@@ -1,0 +1,21 @@
+; mantener_conectado.evs - deja los cargadores conectados y cambia de estado cada 45 s
+; para mirar en vivo la plataforma del CSMS (Available -> Preparing A -> Preparing B -> Available).
+SCENARIO "Mantener conectado y cambiar estados"
+MODE soft
+
+CONNECT A B timeout=20s
+MARK "Available (A y B)"
+WAIT 45s
+
+MARK "A enchufado (Preparing)"
+PLUG A
+WAIT 45s
+
+MARK "B enchufado (Preparing)"
+PLUG B
+WAIT 45s
+
+MARK "Desenchufados (Available)"
+UNPLUG ALL
+WAIT 30s
+DISCONNECT ALL

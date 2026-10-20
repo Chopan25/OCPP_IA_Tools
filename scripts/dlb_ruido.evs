@@ -1,0 +1,42 @@
+; dlb_ruido.evs - tres cargadores, uno con medidor ruidoso (C: gaussiano +-0.4 A + 1%)
+;
+; Verifica que el reparto sea estable aunque las mediciones tengan desviacion: el CSMS no
+; debe recalcular de mas ni pasarse del limite por culpa del ruido.
+SCENARIO "Reparto con desviacion de medicion"
+SEED 7
+MODE soft
+TOLERANCE 1.5
+DEFAULT_WITHIN 25s
+
+SET_SITE_LIMIT 40
+ASSERT_ALWAYS SUM_MEASURED <= 40 id=sitio tol=2 grace=6s
+
+CONNECT A B C
+
+; entran de a uno, todos piden 32 A
+FOR cargador IN A B C
+  PLUG $cargador
+  DEMAND $cargador 32
+  START $cargador
+  WAIT_UNTIL_STABLE A B C for=5s timeout=40s
+END
+
+; 40 A / 3 = 13.3 A cada uno
+EXPECT_LIMIT A == 13.3 tol=1
+EXPECT_LIMIT B == 13.3 tol=1
+EXPECT_LIMIT C == 13.3 tol=1
+EXPECT_SUM_LE 40 tol=2
+
+MARK "C baja a 6 A"
+DEMAND C 6
+WAIT_UNTIL_STABLE A B C for=6s timeout=40s
+EXPECT_LIMIT C == 6 tol=1.5
+EXPECT_LIMIT A == 17 tol=1.5
+EXPECT_LIMIT B == 17 tol=1.5
+EXPECT_MEASURED C == 6 tol=1.5
+
+; sin tormenta de perfiles mientras todo esta estable
+EXPECT_NO_MSG A SetChargingProfile for=12s
+
+STOP ALL
+DISCONNECT ALL

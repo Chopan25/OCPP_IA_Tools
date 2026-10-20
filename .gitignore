@@ -1,0 +1,7 @@
+out/
+.venv/
+__pycache__/
+*.pyc
+sitio.json
+sitio_*.json
+!*.example.json

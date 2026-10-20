@@ -1,0 +1,36 @@
+; dlb_caida_enlace.evs - un cargador pierde la conexion con el CSMS en plena carga
+;
+; B se cae 10 s (sin cierre limpio). Mientras tanto sigue cargando con el ultimo perfil que
+; recibio (comportamiento OCPP). Al volver tiene que reconectar solo y el reparto debe
+; seguir siendo valido.
+SCENARIO "Caida de enlace de un cargador"
+MODE soft
+DEFAULT_WITHIN 30s
+
+ASSERT_ALWAYS SUM_MEASURED <= 40 id=sitio tol=1 grace=8s
+
+CONNECT A B
+PLUG A
+DEMAND A 32
+START A
+PLUG B
+DEMAND B 32
+START B
+WAIT_UNTIL_STABLE A B for=5s timeout=40s
+EXPECT_LIMIT A == 20
+EXPECT_LIMIT B == 20
+
+MARK "B pierde el enlace"
+DROP_LINK B for=10s
+EXPECT_DISCONNECTED B within=5s
+EXPECT_TX B active
+WAIT 12s
+
+MARK "B reconecta"
+EXPECT_CONNECTED B within=20s
+WAIT_UNTIL_STABLE A B for=5s timeout=40s
+EXPECT_SUM_LIMIT <= 40 tol=0.5
+EXPECT_TX B active
+
+STOP ALL
+DISCONNECT ALL

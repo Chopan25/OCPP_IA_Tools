@@ -1,0 +1,62 @@
+; dlb_parametrizado.evs - el escenario base de DLB con TODO en variables (editar solo el bloque de abajo)
+;
+; Dos cargadores (A y B) comparten un limite de sitio:
+;   1) A entra solo            -> A toma lo que pida (hasta su tope fisico)
+;   2) entra B                 -> reparto parejo
+;   3) el auto de A baja       -> A queda con lo que consume, B recibe el sobrante
+;   4) A termina               -> B vuelve a su tope
+; Los valores esperados se calculan a partir de las variables, asi que sirve para cualquier limite.
+SCENARIO "DLB parametrizado"
+DESCRIPTION "A solo, entra B, A baja su consumo, A termina"
+MODE soft
+DEFAULT_WITHIN 30s
+TOLERANCE 1
+
+; ---------------- parametros (editar) ----------------
+SET limite 40        ; limite del grupo/sitio en A (el que configuraste en el CSMS)
+SET tope 32          ; corriente maxima fisica de cada cargador
+SET baja 10          ; a cuanto baja el consumo del auto de A en el paso 3
+SET idtag plug_and_play
+; ------------------------------------------------------
+
+SET_SITE_LIMIT $limite
+SET solo min($tope,$limite)
+SET mitad min($tope,$limite/2)
+SET resto min($tope,$limite-$baja)
+
+ASSERT_ALWAYS SUM_MEASURED <= $limite id=sitio tol=1 grace=8s
+
+CONNECT A B
+
+MARK "1: A solo"
+PLUG A
+DEMAND A $tope
+START A idtag=$idtag
+WAIT_UNTIL_STABLE A for=5s timeout=60s
+EXPECT_LIMIT A == $solo
+
+MARK "2: entra B"
+PLUG B
+DEMAND B $tope
+START B idtag=$idtag
+WAIT_UNTIL_STABLE A B for=6s timeout=60s
+EXPECT_LIMIT A == $mitad
+EXPECT_LIMIT B == $mitad
+EXPECT_SUM_LIMIT <= $limite
+
+MARK "3: el auto de A baja su consumo"
+DEMAND A $baja
+WAIT_UNTIL_STABLE A B for=6s timeout=90s
+EXPECT_LIMIT A == $baja
+EXPECT_LIMIT B == $resto
+EXPECT_SUM_LE $limite
+
+MARK "4: A termina"
+STOP A
+UNPLUG A
+WAIT_UNTIL_STABLE B for=6s timeout=60s
+EXPECT_LIMIT B == $solo
+
+STOP ALL
+UNPLUG ALL
+DISCONNECT ALL

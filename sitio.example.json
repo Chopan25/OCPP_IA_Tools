@@ -1,0 +1,49 @@
+{
+  "_comment": "Copiar a sitio.json y editar. Las claves que empiezan con _ son comentarios y se ignoran.",
+
+  "csms": {
+    "url": "ws://127.0.0.1:9000/ocpp",
+    "_url_nota": "URL base. La URL de cada cargador es: url + '/' + serial (convencion OCPP-J). Para un cargador puntual se puede pisar con chargers[].url",
+    "subprotocol": "ocpp1.6",
+    "tls_verify": true,
+    "connect_timeout_s": 10,
+    "auth": {
+      "type": "none",
+      "_ejemplo_basic": { "type": "basic", "password_env": "CSMS_PASS" }
+    }
+  },
+
+  "site": {
+    "limit_a": 40,
+    "voltage": 230,
+    "phases": 3
+  },
+
+  "defaults": {
+    "_comment": "Valores por defecto de TODOS los cargadores; cada cargador puede pisarlos.",
+    "max_a": 32,
+    "phases": 3,
+    "connectors": 1,
+    "meter": {
+      "sample_interval_s": 5,
+      "measurands": ["Energy.Active.Import.Register", "Current.Import", "Current.Offered", "Power.Active.Import", "Voltage"]
+    },
+    "deviation": { "type": "none", "abs_a": 0, "pct": 0, "bias_a": 0 },
+    "vehicle": { "min_a": 6, "ramp_a_per_s": 5 }
+  },
+
+  "chargers": [
+    { "id": "A", "serial": "EVSE-0001" },
+    { "id": "B", "serial": "EVSE-0002" },
+    {
+      "id": "C", "serial": "EVSE-0003",
+      "_comment": "Cargador con medidor ruidoso: +-0.4 A fijos mas 1% de la corriente (gaussiano).",
+      "deviation": { "type": "gaussian", "abs_a": 0.4, "pct": 1.0 }
+    },
+    {
+      "id": "D", "serial": "EVSE-0004",
+      "_comment": "Monofasico en la fase L2, tope 16 A.",
+      "phases": 1, "phase": "L2", "max_a": 16
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+; dlb_llegadas_random.evs - llegadas aleatorias reproducibles (misma SEED = mismo trafico)
+;
+; 6 autos llegan en 40 s repartidos entre A, B y C. Cada uno pide entre 16 y 32 A y se queda
+; entre 15 y 30 s. Lo importante no es el valor exacto de cada limite sino que el sitio
+; nunca se pase del limite (con 5 s de gracia por los cambios).
+SCENARIO "Llegadas aleatorias"
+DESCRIPTION "6 llegadas al azar (seed 42) con invariante de sitio"
+SEED 42
+MODE soft
+
+ASSERT_ALWAYS SUM_MEASURED <= 40 id=sitio tol=1 grace=6s
+ASSERT_ALWAYS SUM_LIMIT <= 40 id=asignacion tol=0.5 grace=3s
+
+CONNECT A B C
+RANDOM_ARRIVALS n=6 over=40s chargers=A,B,C demand=16..32 duration=15..30
+WAIT_ARRIVALS timeout=300s
+WAIT 5s
+EXPECT_SUM_ACTUAL == 0 tol=0.5 within=20s
+DISCONNECT ALL

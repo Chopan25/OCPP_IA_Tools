@@ -1,0 +1,52 @@
+; dlb_exploratorio.evs - OBSERVAR que hace el DLB, sin afirmar valores esperados
+;
+; Sirve cuando todavia no se sabe (o no se esta seguro de) como reparte el DLB. No usa EXPECT_LIMIT:
+; recorre el escenario base, espera a que el DLB se estabilice en cada fase y saca una "foto"
+; (SNAPSHOT) con los limites y corrientes de cada cargador. Despues se mira con `evsim summary`
+; que valores mando el CSMS y se decide si es lo esperado (y recien ahi se escriben los EXPECT).
+; Lo unico que verifica es la regla de oro: el sitio no se pasa del limite.
+SCENARIO "DLB exploratorio (solo observar)"
+DESCRIPTION "A solo, entra B, A baja su consumo, A termina: se registra que hizo el CSMS en cada fase"
+MODE soft
+DEFAULT_WITHIN 30s
+
+; ---------------- parametros (editar) ----------------
+SET limite 40        ; limite del grupo/sitio en A (el que configuraste en la plataforma)
+SET tope 32          ; corriente maxima de cada cargador
+SET baja 10          ; a cuanto baja el consumo del auto de A en la fase 3
+SET idtag plug_and_play
+; ------------------------------------------------------
+
+SET_SITE_LIMIT $limite
+ASSERT_ALWAYS SUM_MEASURED <= $limite id=sitio tol=1 grace=10s
+
+CONNECT A B
+
+MARK "1: A solo"
+PLUG A
+DEMAND A $tope
+START A idtag=$idtag
+WAIT_UNTIL_STABLE A for=8s timeout=90s
+SNAPSHOT fase1_A_solo
+
+MARK "2: entra B"
+PLUG B
+DEMAND B $tope
+START B idtag=$idtag
+WAIT_UNTIL_STABLE A B for=8s timeout=90s
+SNAPSHOT fase2_A_y_B
+
+MARK "3: el auto de A baja su consumo"
+DEMAND A $baja
+WAIT_UNTIL_STABLE A B for=8s timeout=120s
+SNAPSHOT fase3_A_baja
+
+MARK "4: A termina"
+STOP A
+UNPLUG A
+WAIT_UNTIL_STABLE B for=8s timeout=90s
+SNAPSHOT fase4_solo_B
+
+STOP ALL
+UNPLUG ALL
+DISCONNECT ALL

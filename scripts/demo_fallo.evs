@@ -1,0 +1,23 @@
+; demo_fallo.evs - escenario que FALLA a proposito (sirve para ver como se reporta un fallo)
+;
+; Con el mock en 40 A, esperar 30 A de sitio es imposible: la invariante se viola y el
+; EXPECT_LIMIT tambien. En modo soft el script sigue y lista todos los fallos.
+SCENARIO "Demo de fallo (esperado)"
+MODE soft
+DEFAULT_WITHIN 8s
+
+ASSERT_ALWAYS SUM_MEASURED <= 30 id=sitio30 grace=2s
+
+CONNECT A B
+PLUG A
+DEMAND A 32
+START A
+PLUG B
+DEMAND B 32
+START B
+WAIT_UNTIL_STABLE A B for=4s timeout=30s
+EXPECT_LIMIT A == 15
+EXPECT_LIMIT B == 15
+EXPECT_SUM_LE 30
+STOP ALL
+DISCONNECT ALL
